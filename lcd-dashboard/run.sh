@@ -7,7 +7,7 @@ export SPI_DEVICE=$(bashio::config 'spi_device')
 export SPI_SPEED=$(bashio::config 'spi_speed')
 export GPIO_CHIP=$(bashio::config 'gpio_chip')
 export DIGITAL_BACKLIGHT=$(bashio::config 'digital_backlight')
-export VERSION="1.2.0"
+export VERSION="1.2.1"
 
 bashio::log.info "========================================="
 bashio::log.info "STARTING RPI LCD DASHBOARD"
