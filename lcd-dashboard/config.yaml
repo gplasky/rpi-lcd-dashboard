@@ -1,6 +1,6 @@
 name: "RPi LCD Dashboard"
 description: "Drives the 1.69 inch SPI LCD dashboard."
-version: "1.1.7"
+version: "1.2.0"
 slug: "rpi_lcd_dashboard"
 arch:
   - aarch64
@@ -15,12 +15,14 @@ gpio: true
 host_network: true
 host_pid: true
 options:
+  rpi_lgpio_revision: "d04170"
   spi_bus: 0
   spi_device: 0
   spi_speed: 10000000
   gpio_chip: 0
   digital_backlight: true
 schema:
+  rpi_lgpio_revision: str
   spi_bus: int
   spi_device: int
   spi_speed: int
