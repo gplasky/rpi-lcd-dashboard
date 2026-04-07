@@ -1,42 +1,56 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/base:20.0.2
 FROM $BUILD_FROM
-
-# Install system dependencies required for SPI, Python, and display rendering libraries
+# 1. Add make, g++, and unzip to compile the C library
 RUN apk add --no-cache \
     python3 \
     py3-pip \
     git \
     gcc \
+    g++ \
+    make \
     python3-dev \
     musl-dev \
     linux-headers \
     jpeg-dev \
     zlib-dev \
     freetype-dev \
-    swig
+    swig \
+    unzip
+
+# 2. Build the core liblgpio C library from source
+# We use PREFIX=/usr so Alpine's compiler knows exactly where to find it later
+WORKDIR /tmp/lgpio-build
+RUN wget https://github.com/joan2937/lg/archive/master.zip && \
+    unzip master.zip && \
+    cd lg-master && \
+    make && \
+    make install PREFIX=/usr
 
 WORKDIR /app
 
+# Copy your local add-on files
 COPY . /app/
 
-# Install Python requirements
+# 3. Install Python requirements (Ensure RPi.GPIO is removed from requirements.txt!)
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
-# Install and  the Pi 5 compatibility shim to intercept RPi.GPIO calls
-RUN pip3 install --no-cache-dir --break-system-packages spidev rpi-lgpio
+# MUST BE SEPARATE: Install spidev
+RUN pip3 install --no-cache-dir --break-system-packages spidev
 
-# Force the shim to use the HAOS mapped gpiochip0
-ENV LGPIO_CHIP=0
-
-# FIX: Install the updated lgpio (0.2.2.0) directly from Gadgetoid's release tarball
-# We pass CFLAGS to prevent GCC 14 from failing the build on legacy C pointer warnings 
+# 4. Install the Python bindings for the C library we just built
 RUN wget https://github.com/Gadgetoid/PY_LGPIO/releases/download/0.2.2.0/lgpio-0.2.2.0.tar.gz && \
     CFLAGS="-Wno-error=incompatible-pointer-types -std=gnu89" pip3 install --no-cache-dir --break-system-packages lgpio-0.2.2.0.tar.gz
 
-    # FIX: Open-heart surgery on gpiozero. Force it to bypass its Pi 5 bug and ALWAYS open chip 0
+# 5. Force gpiozero to bypass its Pi 5 bug
 RUN sed -i 's/lgpio.gpiochip_open(chip)/lgpio.gpiochip_open(0)/g' /usr/lib/python3.12/site-packages/gpiozero/pins/lgpio.py || true
 
-    COPY run.sh /
+# Tell the shim which RP1 chip to use
+ENV LGPIO_CHIP=0
+
+# 6. Install the shim LAST. It will see lgpio is already installed and skip building it!
+RUN pip3 install --no-cache-dir --break-system-packages rpi-lgpio
+
+COPY run.sh /
 RUN chmod a+x /run.sh
 
 CMD [ "/run.sh" ]
