@@ -12,7 +12,8 @@ RUN apk add --no-cache \
     linux-headers \
     jpeg-dev \
     zlib-dev \
-    freetype-dev
+    freetype-dev \
+    swig
 
 WORKDIR /app
 
