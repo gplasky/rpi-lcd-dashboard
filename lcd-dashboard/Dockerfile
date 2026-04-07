@@ -19,10 +19,10 @@ WORKDIR /app
 COPY . /app/
 
 # Install Python requirements
-RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt || true
+RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
 # Install and  the Pi 5 compatibility shim to intercept RPi.GPIO calls
-RUN pip3 install --no-cache-dir --break-system-packages spidev rpi-lgpio || true
+RUN pip3 install --no-cache-dir --break-system-packages spidev rpi-lgpio
 
 # Force the shim to use the HAOS mapped gpiochip0
 ENV LGPIO_CHIP=0
