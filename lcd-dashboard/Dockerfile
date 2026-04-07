@@ -21,8 +21,11 @@ COPY . /app/
 # Install Python requirements
 RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt || true
 
-# Install spidev
-RUN pip3 install --no-cache-dir --break-system-packages spidev || true
+# Install and  the Pi 5 compatibility shim to intercept RPi.GPIO calls
+RUN pip3 install --no-cache-dir --break-system-packages spidev rpi-lgpio || true
+
+# Force the shim to use the HAOS mapped gpiochip0
+ENV LGPIO_CHIP=0
 
 # FIX: Install the updated lgpio (0.2.2.0) directly from Gadgetoid's release tarball
 # We pass CFLAGS to prevent GCC 14 from failing the build on legacy C pointer warnings 
