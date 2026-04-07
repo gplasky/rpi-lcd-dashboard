@@ -77,11 +77,13 @@ class RaspberryPi:
 
         self.RST_PIN = self.gpio_mode(rst, self.OUTPUT)
         self.DC_PIN = self.gpio_mode(dc, self.OUTPUT)
-        self.BL_PIN = self.gpio_pwm(bl)
+        
+        # Point BL_PIN directly to the already-initialized _pwm object
+        self.BL_PIN = self._pwm
         self.bl_DutyCycle(0)
 
         # Initialize SPI
-        self.SPI = spi
+        self.SPI = self.spi 
         if self.SPI != None:
             self.SPI.max_speed_hz = spi_freq
             self.SPI.mode = 0b00
