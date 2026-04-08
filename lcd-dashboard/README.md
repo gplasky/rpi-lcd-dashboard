@@ -5,16 +5,10 @@
 </p>
 
 <p align="left">
-<a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FWeb3-Pi%2Fraspberry-pi-lcd-dashboard&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false"/></a>
 <a href="/LICENSE"><img src="https://img.shields.io/badge/license-GPL-blue.svg" alt="license" /></a>
 </p>
 
-
-***Unique hardware dashboard for Raspberry Pi 4 and Raspberry Pi 5 with 3D model for Argon Neo 5 enclosure*** 
-
-***This repository is part of the [Web3 Pi](https://www.web3pi.io) initiative, which enables the automated deployment of a full Ethereum node on a Raspberry Pi.***
-
-This project allows you to install a color LCD display in the Argon Neo 5 case and display the following system parameters:
+This project allows you to use a 1.69" color LCD display with a Raspberry Pi 4 or Raspberry Pi 5 and display the following system parameters:
 
 - CPU Usage
 - CPU Temperature
@@ -24,7 +18,9 @@ This project allows you to install a color LCD display in the Argon Neo 5 case a
 - IP / Hostname
 - Network Traffic (eth0/WiFi)
 
-We have designed our own 3D model of the enclosure cover with a space for the display. The assembly is simple, using snap-fits, with no tools required. The models are open-source, so anyone can print them on a 3D printer. The source code is also open-source, allowing users to add new functionalities, customize it to their needs, or add support for new displays.
+While the original project was designed to be run as a standalone application, it has been updated to run as a [Home Assistant Add-on](https://www.home-assistant.io/blog/2023/07/17/add-on-store-refresh/).  This add-on is not affiliated with Home Assistant.
+
+There are multiple open source enclosures for the Raspberry Pi 4 and 5. Two options that we know to work are the [Argon Neo 5](https://www.argon40.com/products/argon-neo-5-case-for-raspberry-pi-5) and the [Raspberry Pi 5 case on Printables](https://www.printables.com/model/742926-raspberry-pi-5-case).
 
 ## Disclaimer
 
