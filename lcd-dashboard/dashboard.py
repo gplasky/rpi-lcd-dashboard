@@ -7,6 +7,8 @@ import logging
 import threading
 import netifaces
 import signal
+import urllib.request
+import json
 from lcd import LCD_1inch69
 from collections import deque
 from PIL import Image, ImageDraw, ImageFont
@@ -56,6 +58,89 @@ def handle_shutdown_signal(signum, frame):
 signal.signal(signal.SIGINT, handle_shutdown_signal)
 signal.signal(signal.SIGTERM, handle_shutdown_signal)
 
+C_W3P_index = 0
+solar_power = "N/A"
+
+def draw_baseline_layout(draw, Font1, Font2, Font3, Font4):
+    global cpu_percent, cpu_temp, mem, disk, disk_free_gb, net_interface, net_u, net_d, swap, ip_local_address
+    
+    # Draw vertical lines
+    draw.line([(240 / 3, 0), (240 / 3, (280 / 3) * 2)], fill="BLACK", width=2, joint=None)
+    draw.line([((240 / 3) * 2, 0), ((240 / 3) * 2, (280 / 3) * 2  -22)], fill="BLACK", width=2, joint=None)
+
+    # Draw horizontal lines
+    draw.line([(0, 280 / 3), (240, 280 / 3)], fill="BLACK", width=2, joint=None)
+    draw.line([(0, (280 / 3) * 2), (240, (280 / 3) * 2)], fill="BLACK", width=2, joint=None)
+    draw.line([((240 / 3), (280 / 3) * 2 - 22), (240, (280 / 3) * 2 - 22)], fill="BLACK", width=2, joint=None)
+
+    # CPU
+    x = 0
+    y = 0
+    draw.text((118 + x, 108 + y), 'CPU', fill=C_T2, font=Font2, anchor="mm")
+    if SHOW_PER_CORE:
+        draw.text((120 + x, 140 + y), f'{int(cpu_percent)}', fill=f'{value_to_hex_color_cpu_usage_400(int(cpu_percent))}', font=Font1, anchor="mm")
+    else:
+        draw.text((120 + x, 140 + y), f'{int(cpu_percent)}', fill=f'{value_to_hex_color_cpu_usage(int(cpu_percent))}', font=Font1, anchor="mm")
+        draw.text((150 + x, 145 + y), '%', fill=C_T2, font=Font3, anchor="mm")
+
+    # RAM
+    x = 80
+    y = -90
+    draw.text((120 + x, 108 + y), 'RAM', fill=C_T2, font=Font2, anchor="mm")
+    draw.text((120 + x, 140 + y), f'{int(mem.percent)}', fill=C_T1, font=Font1, anchor="mm")
+    draw.text((145 + x, 170 + y), '%', fill=C_T2, font=Font2, anchor="mm")
+
+    # DISK
+    x = -80
+    y = 0
+    draw.text((120 + x, 108 + y), 'DISK', fill=C_T2, font=Font2, anchor="mm")
+    draw.text((120 + x, 140 + y), f'{int(disk.percent)}%', fill=C_T1, font=Font1, anchor="mm")
+    draw.text((122 + x, 170 + y), f'{disk_free_gb:.1f}GB', fill=C_T2, font=Font3, anchor="mm")
+
+    # CPU TEMP
+    x = 0
+    y = -90
+    draw.text((120 + x, 108 + y), 'TEMP', fill=C_T2, font=Font2, anchor="mm")
+    ct = int(cpu_temp)
+    draw.text((120 + x, 140 + y), f'{ct}', fill=C_T1, font=Font1, anchor="mm")
+    draw.text((145 + x, 170 + y), '°C', fill=C_T2, font=Font2, anchor="mm")
+
+    # Network
+    x = -80
+    y = -90
+    draw.text((120 + x, 108 + y), net_interface, fill=C_T2, font=Font2, anchor="mm")
+    if net_d >= 100:
+        draw.text((85 + x, 135 + y), f"D:{net_d:.0f}", fill=C_T1, font=Font3, anchor="lm")
+    else:
+        draw.text((85 + x, 135 + y), f"D:{net_d:.1f}", fill=C_T1, font=Font3, anchor="lm")
+
+    if net_d >= 100:
+        draw.text((85 + x, 155 + y), f"U:{net_u:.0f}", fill=C_T1, font=Font3, anchor="lm")
+    else:
+        draw.text((85 + x, 155 + y), f"U:{net_u:.1f}", fill=C_T1, font=Font3, anchor="lm")
+
+    draw.text((135 + x, 176 + y), 'Mbps', fill=C_T2, font=Font3, anchor="mm")
+
+    # SWAP
+    x = 80
+    y = 0
+    draw.text((115 + x, 108 + y), 'SWAP', fill=C_T2, font=Font2, anchor="mm")
+    draw.text((120 + x, 140 + y), f'{int(swap.percent)}', fill=C_T1, font=Font1, anchor="mm")
+    draw.text((153 + x, 145 + y), '%', fill=C_T2, font=Font2, anchor="mm")
+
+    # Local IP
+    draw.text((120, 260), f'{ip_local_address}', fill=C_T1, font=Font3, anchor="mm")
+
+def draw_custom_layout(draw, Font1, Font2, Font3, Font4):
+    global cpu_percent, cpu_temp, mem, disk, disk_free_gb, net_interface, net_u, net_d, swap, ip_local_address, hostname, solar_power
+    
+    # Draw baseline elements
+    draw_baseline_layout(draw, Font1, Font2, Font3, Font4)
+    
+    # Draw Solar Power
+    draw.text((120, 185), 'Solar Power', fill=C_T2, font=Font2, anchor="mm")
+    draw.text((120, 220), f'{solar_power}', fill=C_T1, font=Font1, anchor="mm")
+
 def main():
     logging.info('Raspberry Pi Hardware Monitor Start')
     # chceck sensors avability
@@ -98,6 +183,8 @@ def main():
     time.sleep(splash_time - 1) # how long to show splash image (Web3Pi logo)
 
     get_ip_address()
+    
+    layout = os.environ.get('LAYOUT', 'baseline')
 
     # Create the ul/dl thread and a deque of length 1 to hold the ul/dl- values
     global transfer_rate
@@ -117,7 +204,6 @@ def main():
     try:
         # Get the current time (in seconds)
         next_time = time.time() + 1
-        C_W3P_index = 0
         skip = 0
         logging.info('Entering forever loop')
         while True:
@@ -134,85 +220,10 @@ def main():
                 image1 = Image.open('./img/lcdbg1.png')
                 draw = ImageDraw.Draw(image1)
 
-                # Draw vertical lines
-                draw.line([(240 / 3, 0), (240 / 3, (280 / 3) * 2)], fill="BLACK", width=2, joint=None)
-                draw.line([((240 / 3) * 2, 0), ((240 / 3) * 2, (280 / 3) * 2  -22)], fill="BLACK", width=2, joint=None)
-
-                # Draw horizontal lines
-                draw.line([(0, 280 / 3), (240, 280 / 3)], fill="BLACK", width=2, joint=None)
-                draw.line([(0, (280 / 3) * 2), (240, (280 / 3) * 2)], fill="BLACK", width=2, joint=None)
-                draw.line([((240 / 3), (280 / 3) * 2 - 22), (240, (280 / 3) * 2 - 22)], fill="BLACK", width=2, joint=None)
-
-                # CPU
-                x = 0
-                y = 0
-                draw.text((118 + x, 108 + y), 'CPU', fill=C_T2, font=Font2, anchor="mm")
-                if SHOW_PER_CORE:
-                    draw.text((120 + x, 140 + y), f'{int(cpu_percent)}', fill=f'{value_to_hex_color_cpu_usage_400(int(cpu_percent))}', font=Font1, anchor="mm")
+                if layout == 'custom':
+                    draw_custom_layout(draw, Font1, Font2, Font3, Font4)
                 else:
-                    draw.text((120 + x, 140 + y), f'{int(cpu_percent)}', fill=f'{value_to_hex_color_cpu_usage(int(cpu_percent))}', font=Font1, anchor="mm")
-                    draw.text((150 + x, 145 + y), '%', fill=C_T2, font=Font3, anchor="mm")
-
-                # RAM
-                x = 80
-                y = -90
-                draw.text((120 + x, 108 + y), 'RAM', fill=C_T2, font=Font2, anchor="mm")
-                draw.text((120 + x, 140 + y), f'{int(mem.percent)}', fill=C_T1, font=Font1, anchor="mm")
-                draw.text((145 + x, 170 + y), '%', fill=C_T2, font=Font2, anchor="mm")
-
-                # DISK
-                x = -80
-                y = 0
-                draw.text((120 + x, 108 + y), 'DISK', fill=C_T2, font=Font2, anchor="mm")
-                draw.text((120 + x, 140 + y), f'{int(disk.percent)}%', fill=C_T1, font=Font1, anchor="mm")
-                draw.text((122 + x, 170 + y), f'{disk_free_gb:.1f}GB', fill=C_T2, font=Font3, anchor="mm")
-
-                # CPU TEMP
-                x = 0
-                y = -90
-                draw.text((120 + x, 108 + y), 'TEMP', fill=C_T2, font=Font2, anchor="mm")
-                ct = int(cpu_temp)
-                draw.text((120 + x, 140 + y), f'{ct}', fill=C_T1, font=Font1, anchor="mm")
-                draw.text((145 + x, 170 + y), '°C', fill=C_T2, font=Font2, anchor="mm")
-
-                # Network
-                x = -80
-                y = -90
-                draw.text((120 + x, 108 + y), net_interface, fill=C_T2, font=Font2, anchor="mm")
-                global net_u, net_d
-                if net_d >= 100:
-                    draw.text((85 + x, 135 + y), f"D:{net_d:.0f}", fill=C_T1, font=Font3, anchor="lm")
-                else:
-                    draw.text((85 + x, 135 + y), f"D:{net_d:.1f}", fill=C_T1, font=Font3, anchor="lm")
-
-                if net_d >= 100:
-                    draw.text((85 + x, 155 + y), f"U:{net_u:.0f}", fill=C_T1, font=Font3, anchor="lm")
-                else:
-                    draw.text((85 + x, 155 + y), f"U:{net_u:.1f}", fill=C_T1, font=Font3, anchor="lm")
-
-                draw.text((135 + x, 176 + y), 'Mbps', fill=C_T2, font=Font3, anchor="mm")
-
-                # SWAP
-                x = 80
-                y = 0
-                draw.text((115 + x, 108 + y), 'SWAP', fill=C_T2, font=Font2, anchor="mm")
-                draw.text((120 + x, 140 + y), f'{int(swap.percent)}', fill=C_T1, font=Font1, anchor="mm")
-                draw.text((153 + x, 145 + y), '%', fill=C_T2, font=Font2, anchor="mm")
-                #draw.text((153 + x, 110 + y), '%', fill=C_T2, font=Font2, anchor="mm")
-
-                # Local IP / HostName
-                x = 40
-                y = 95
-                draw.text((120, 108 + y), 'IP / HOSTNAME', fill=C_T2, font=Font2, anchor="mm")
-                draw.text((120, 170 + y - 35), f'{ip_local_address}', fill=C_T1, font=Font3, anchor="mm")
-                draw.text((120, 170 + y - 10), f'{hostname}.local', fill=C_T1, font=Font3, anchor="mm")
-
-                # Web3Pi.io text
-                draw.text((165, 80 + y), 'Web3Pi.io', fill=C_W3P[C_W3P_index], font=Font3, anchor="mm")
-                if(C_W3P_index < len(C_W3P) - 1):
-                    C_W3P_index += 1
-                else:
-                    C_W3P_index = 0
+                    draw_baseline_layout(draw, Font1, Font2, Font3, Font4)
 
                 # Send image to lcd display
                 disp.ShowImage(image1)
@@ -311,6 +322,38 @@ def high_frequency_tasks():
     cpu_temp = get_cpu_temperature()
     #logging.info(f'CPU_TEMP= {getCpuTemperature()} °C')
 
+def fetch_solar_data():
+    global solar_power
+    token = os.environ.get('SUPERVISOR_TOKEN')
+    if not token:
+        logging.warning("SUPERVISOR_TOKEN not set, cannot fetch solar data")
+        solar_power = "No Token"
+        return
+
+    url = "http://supervisor/core/api/states/sensor.solaredge_current_power"
+    req = urllib.request.Request(url)
+    req.add_header('Authorization', f'Bearer {token}')
+    req.add_header('Content-Type', 'application/json')
+
+    try:
+        with urllib.request.urlopen(req, timeout=5) as response:
+            data = json.loads(response.read().decode())
+            state = data.get('state')
+            if state and state not in ['unavailable', 'unknown']:
+                try:
+                    val = float(state)
+                    if val >= 1000:
+                        solar_power = f"{val/1000:.1f}kW"
+                    else:
+                        solar_power = f"{val:.0f}W"
+                except ValueError:
+                    solar_power = state
+            else:
+                solar_power = "N/A"
+    except Exception as e:
+        logging.error(f"Error fetching solar data: {e}")
+        solar_power = "Error"
+
 def medium_frequency_tasks():
     logging.debug("medium_frequency_tasks()")
 
@@ -320,6 +363,8 @@ def medium_frequency_tasks():
     # global cpu_rpm
     mem = psutil.virtual_memory()
     swap = psutil.swap_memory()
+    
+    fetch_solar_data()
 
     print_stats()
 
