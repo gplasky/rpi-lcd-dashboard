@@ -42,24 +42,25 @@ SPI_DEVICE = int(os.environ.get('SPI_DEVICE', 0))
 SPI_SPEED = int(os.environ.get('SPI_SPEED', 10000000))
 GPIO_CHIP = int(os.environ.get('GPIO_CHIP', 0))
 DIGITAL_BACKLIGHT = os.environ.get('DIGITAL_BACKLIGHT', 'true').lower() == 'true'
-
-print("Python initialized with dynamically injected HA Add-on parameters.")
+PIN_RST = int(os.environ.get('PIN_RST', 27))
+PIN_DC = int(os.environ.get('PIN_DC', 25))
+PIN_BL = int(os.environ.get('PIN_BL', 18))
 
 # Globally override gpiozero's Pi 5 chip detection bug
 factory = LGPIOFactory(chip=GPIO_CHIP)
 Device.pin_factory = factory
 
 class RaspberryPi:
-    def __init__(self, spi_freq=SPI_SPEED, rst=27, dc=25, bl=18, bl_freq=1000, i2c=None, i2c_freq=100000):
+    def __init__(self, spi_freq=SPI_SPEED, rst=PIN_RST, dc=PIN_DC, bl=PIN_BL, bl_freq=1000, i2c=None, i2c_freq=100000):
         import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
-        
+
         # Apply the dynamic SPI parameters
         self.spi = spidev.SpiDev(SPI_BUS, SPI_DEVICE)
         self.spi.max_speed_hz = spi_freq
         self.spi.mode = 0  # Force Mode 0 for the ST7789 chip
-        
+
         # Apply the Backlight patch dynamically
         if DIGITAL_BACKLIGHT:
             self._pwm = DigitalOutputDevice(bl)
@@ -77,13 +78,13 @@ class RaspberryPi:
 
         self.RST_PIN = self.gpio_mode(rst, self.OUTPUT)
         self.DC_PIN = self.gpio_mode(dc, self.OUTPUT)
-        
+
         # Point BL_PIN directly to the already-initialized _pwm object
         self.BL_PIN = self._pwm
         self.bl_DutyCycle(0)
 
         # Initialize SPI
-        self.SPI = self.spi 
+        self.SPI = self.spi
         if self.SPI != None:
             self.SPI.max_speed_hz = spi_freq
             self.SPI.mode = 0b00

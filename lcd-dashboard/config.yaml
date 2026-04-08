@@ -22,6 +22,9 @@ options:
   spi_speed: 10000000
   gpio_chip: 0
   digital_backlight: true
+  pin_rst: 27
+  pin_dc: 25
+  pin_bl: 18
 schema:
   board_model: "list(Raspberry Pi 5|Raspberry Pi 4|Raspberry Pi 3)"
   rpi_lgpio_revision: str
@@ -30,3 +33,6 @@ schema:
   spi_speed: int
   gpio_chip: int
   digital_backlight: bool
+  pin_rst: int
+  pin_dc: int
+  pin_bl: int

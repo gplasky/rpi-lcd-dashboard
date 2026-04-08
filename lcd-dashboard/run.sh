@@ -16,6 +16,10 @@ case $BOARD_MODEL in
   *) export RPI_LGPIO_REVISION="d04170" ;; # Default to Pi 5
 esac
 
+export PIN_RST=$(bashio::config 'pin_rst')
+export PIN_DC=$(bashio::config 'pin_dc')
+export PIN_BL=$(bashio::config 'pin_bl')
+
 bashio::log.info "========================================="
 bashio::log.info "STARTING RPI LCD DASHBOARD"
 bashio::log.info "Configured for: ${BOARD_MODEL} (Revision: ${RPI_LGPIO_REVISION})"bashio::log.info "SPI_BUS: ${SPI_BUS}"
