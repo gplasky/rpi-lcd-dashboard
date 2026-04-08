@@ -6,7 +6,7 @@ export SPI_DEVICE=$(bashio::config 'spi_device')
 export SPI_SPEED=$(bashio::config 'spi_speed')
 export LGPIO_CHIP=$(bashio::config 'gpio_chip')
 export DIGITAL_BACKLIGHT=$(bashio::config 'digital_backlight')
-export VERSION="1.3.1"
+export VERSION="1.3.2"
 BOARD_MODEL=$(bashio::config 'board_model')
 case $BOARD_MODEL in
   "Raspberry Pi 5") export RPI_LGPIO_REVISION="d04170" ;;
@@ -24,7 +24,7 @@ bashio::log.info "STARTING RPI LCD DASHBOARD"
 bashio::log.info "Configured for: ${BOARD_MODEL} (Revision: ${RPI_LGPIO_REVISION})"bashio::log.info "SPI_BUS: ${SPI_BUS}"
 bashio::log.info "SPI_DEVICE: ${SPI_DEVICE}"
 bashio::log.info "SPI_SPEED: ${SPI_SPEED}"
-bashio::log.info "GPIO_CHIP: ${GPIO_CHIP}"
+bashio::log.info "LGPIO_CHIP: ${LGPIO_CHIP}"
 bashio::log.info "DIGITAL_BACKLIGHT: ${DIGITAL_BACKLIGHT}"
 bashio::log.info "VERSION: ${VERSION}"
 bashio::log.info "========================================="
