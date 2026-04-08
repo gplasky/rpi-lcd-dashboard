@@ -1,6 +1,6 @@
 name: "RPi LCD Dashboard"
 description: "Drives the 1.69 inch SPI LCD dashboard."
-version: "1.3.3"
+version: "1.4.0"
 slug: "rpi_lcd_dashboard"
 arch:
   - aarch64
@@ -14,6 +14,7 @@ devices:
 gpio: true
 host_network: true
 host_pid: true
+homeassistant_api: true
 options:
   board_model: "Raspberry Pi 5"
   rpi_lgpio_revision: "d04170"
@@ -25,6 +26,7 @@ options:
   pin_rst: 27
   pin_dc: 25
   pin_bl: 18
+  layout: "baseline"
 schema:
   board_model: "list(Raspberry Pi 5|Raspberry Pi 4|Raspberry Pi 3)"
   rpi_lgpio_revision: str
@@ -36,3 +38,4 @@ schema:
   pin_rst: int
   pin_dc: int
   pin_bl: int
+  layout: "list(baseline|custom)"
