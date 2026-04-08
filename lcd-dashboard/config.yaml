@@ -15,6 +15,7 @@ gpio: true
 host_network: true
 host_pid: true
 options:
+  board_model: "Raspberry Pi 5"
   rpi_lgpio_revision: "d04170"
   spi_bus: 0
   spi_device: 0
@@ -22,6 +23,7 @@ options:
   gpio_chip: 0
   digital_backlight: true
 schema:
+  board_model: "list(Raspberry Pi 5|Raspberry Pi 4|Raspberry Pi 3)"
   rpi_lgpio_revision: str
   spi_bus: int
   spi_device: int

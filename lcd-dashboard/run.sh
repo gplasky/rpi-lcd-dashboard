@@ -1,18 +1,24 @@
 #!/usr/bin/with-contenv bashio
 
 # Extract user configuration from the HA Add-on UI
-export RPI_LGPIO_REVISION=$(bashio::config 'rpi_lgpio_revision')
 export SPI_BUS=$(bashio::config 'spi_bus')
 export SPI_DEVICE=$(bashio::config 'spi_device')
 export SPI_SPEED=$(bashio::config 'spi_speed')
 export GPIO_CHIP=$(bashio::config 'gpio_chip')
+export LGPIO_CHIP=${GPIO_CHIP}
 export DIGITAL_BACKLIGHT=$(bashio::config 'digital_backlight')
 export VERSION="1.2.2"
+BOARD_MODEL=$(bashio::config 'board_model')
+case $BOARD_MODEL in
+  "Raspberry Pi 5") export RPI_LGPIO_REVISION="d04170" ;;
+  "Raspberry Pi 4") export RPI_LGPIO_REVISION="c03111" ;;
+  "Raspberry Pi 3") export RPI_LGPIO_REVISION="a02082" ;;
+  *) export RPI_LGPIO_REVISION="d04170" ;; # Default to Pi 5
+esac
 
 bashio::log.info "========================================="
 bashio::log.info "STARTING RPI LCD DASHBOARD"
-bashio::log.info "RPI_LGPIO_REVISION: ${RPI_LGPIO_REVISION}"
-bashio::log.info "SPI_BUS: ${SPI_BUS}"
+bashio::log.info "Configured for: ${BOARD_MODEL} (Revision: ${RPI_LGPIO_REVISION})"bashio::log.info "SPI_BUS: ${SPI_BUS}"
 bashio::log.info "SPI_DEVICE: ${SPI_DEVICE}"
 bashio::log.info "SPI_SPEED: ${SPI_SPEED}"
 bashio::log.info "GPIO_CHIP: ${GPIO_CHIP}"
