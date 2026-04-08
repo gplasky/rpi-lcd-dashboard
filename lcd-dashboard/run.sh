@@ -4,10 +4,9 @@
 export SPI_BUS=$(bashio::config 'spi_bus')
 export SPI_DEVICE=$(bashio::config 'spi_device')
 export SPI_SPEED=$(bashio::config 'spi_speed')
-export GPIO_CHIP=$(bashio::config 'gpio_chip')
-export LGPIO_CHIP=${GPIO_CHIP}
+export LGPIO_CHIP=$(bashio::config 'gpio_chip')
 export DIGITAL_BACKLIGHT=$(bashio::config 'digital_backlight')
-export VERSION="1.3.0"
+export VERSION="1.3.1"
 BOARD_MODEL=$(bashio::config 'board_model')
 case $BOARD_MODEL in
   "Raspberry Pi 5") export RPI_LGPIO_REVISION="d04170" ;;

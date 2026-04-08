@@ -40,14 +40,13 @@ from gpiozero.pins.lgpio import LGPIOFactory
 SPI_BUS = int(os.environ.get('SPI_BUS', 0))
 SPI_DEVICE = int(os.environ.get('SPI_DEVICE', 0))
 SPI_SPEED = int(os.environ.get('SPI_SPEED', 10000000))
-GPIO_CHIP = int(os.environ.get('GPIO_CHIP', 0))
 DIGITAL_BACKLIGHT = os.environ.get('DIGITAL_BACKLIGHT', 'true').lower() == 'true'
 PIN_RST = int(os.environ.get('PIN_RST', 27))
 PIN_DC = int(os.environ.get('PIN_DC', 25))
 PIN_BL = int(os.environ.get('PIN_BL', 18))
 
 # Globally override gpiozero's Pi 5 chip detection bug
-factory = LGPIOFactory(chip=GPIO_CHIP)
+factory = LGPIOFactory()
 Device.pin_factory = factory
 
 class RaspberryPi:
