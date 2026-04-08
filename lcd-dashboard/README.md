@@ -64,66 +64,59 @@ Since each 3D printer may be calibrated differently, it may be necessary to adju
 
 Mount the enclosure cover and secure it with two screws. Make sure to arrange the cables inside the enclosure so they do not obstruct the fan and minimize interference with cooling.
 
-## Installation
+## Installation (Home Assistant Add-on)
 
-To enable the display, the SPI interface must be enabled.  
-To do this, execute the following command and then reboot the device:
+This project is designed to run as a Home Assistant Add-on.
+
+### 1. Prerequisites
+
+To enable the display, the SPI interface must be enabled on your host system. If you are running Home Assistant OS, you may need to enable SPI via the configuration.
+
+For standard Raspberry Pi OS, execute the following command and then reboot the device:
 
 ```shell
 sudo sed -i '/^#dtparam=spi=on/s/^#//' /boot/firmware/config.txt
 sudo reboot
 ```
 
-Download the repository.
+### 2. Add Repository
 
-```shell
-sudo apt-get -y install git
-git clone https://github.com/Web3-Pi/raspberry-pi-lcd-dashboard.git
-```
+1. In Home Assistant, go to **Settings** -> **Add-ons**.
+2. Click **Add-on Store** in the bottom right corner.
+3. Click the three dots menu (top right) and select **Repositories**.
+4. Add the following URL: `https://github.com/gplasky/rpi-lcd-dashboard`
+5. Click **Add** and then **Close**.
 
-Then, you can run the program as a service. The program will start automatically with the system startup.  
-Alternatively, you can run it once. The program will stop when you close the console.
+### 3. Install Add-on
 
-### Run as a service - (recommended)   
+1. Search for **RPi LCD Dashboard** in the Add-on Store.
+2. Click on it and then click **Install**.
 
-```shell
-cd raspberry-pi-lcd-dashboard
-chmod +x *.sh
-sudo ./create_service.sh
-```
+### 4. Configuration
 
-To **stop** the program, execute `sudo systemctl stop dashboard.service`
+Before starting the add-on, configure it in the **Configuration** tab according to your hardware:
 
-To **uninstall** the service, execute `sudo ./remove_service.sh`
+- **Board Model**: Select your Raspberry Pi model (Pi 5, Pi 4, Pi 3).
+- **SPI Bus**: Usually `0`.
+- **SPI Device**: Usually `0`.
+- **SPI Speed**: Default `10000000`.
+- **GPIO Chip**: Usually `0`.
+- **Digital Backlight**: Set to `true` if you want to control backlight digitally.
+- **Pin RST**: Reset pin (default `27`).
+- **Pin DC**: Data/Command pin (default `25`).
+- **Pin BL**: Backlight pin (default `18`).
 
-### or run one time
+### 5. Start Add-on
 
-If you do not want to run the program as a service, you can run it once.   
-Note: Do not use both methods simultaneously.
-
-```shell
-cd raspberry-pi-lcd-dashboard
-chmod +x *.sh
-sudo ./run.sh
-```
-To stop the program, press Ctrl+C.
+1. Go back to the **Info** tab.
+2. Click **Start**.
+3. Enable **Start on boot** and **Watchdog** if desired.
 
 ## Customisation
 
-In the file `dashboard.py`, there is a flag `SHOW_PER_CORE` that determines whether the CPU usage percentage should be in the range of `0-100%` or `0-400%`.
+Configuration is now handled via the Home Assistant Add-on UI in the **Configuration** tab. You can adjust SPI settings, pins, and board model without editing files.
 
-0-400% represents the summed load of each core in the Raspberry Pi.
-
-```python
-# Choose how to display CPU usage percentages
-SHOW_PER_CORE = False
-# False = [0 - 100%]
-# True  = [0 - 400%]
-```
-note: Restart the service after making changes.   
-```shell
-sudo systemctl restart dashboard.service
-```
+For advanced customization of the dashboard layout or metrics, you would need to fork the repository, modify `dashboard.py`, and build your own custom add-on image.
 
 
 ## 3D Model
