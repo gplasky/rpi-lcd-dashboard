@@ -61,7 +61,7 @@ signal.signal(signal.SIGTERM, handle_shutdown_signal)
 C_W3P_index = 0
 solar_power = "N/A"
 
-def draw_baseline_layout(draw, Font1, Font2, Font3, Font4):
+def draw_baseline_layout(draw, Font1, Font2, Font3, Font4, draw_ip=True):
     global cpu_percent, cpu_temp, mem, disk, disk_free_gb, net_interface, net_u, net_d, swap, ip_local_address
     
     # Draw vertical lines
@@ -129,17 +129,21 @@ def draw_baseline_layout(draw, Font1, Font2, Font3, Font4):
     draw.text((153 + x, 145 + y), '%', fill=C_T2, font=Font2, anchor="mm")
 
     # Local IP
-    draw.text((120, 260), f'{ip_local_address}', fill=C_T1, font=Font3, anchor="mm")
+    if draw_ip:
+        draw.text((120, 260), f'{ip_local_address}', fill=C_T1, font=Font3, anchor="mm")
 
 def draw_custom_layout(draw, Font1, Font2, Font3, Font4):
     global cpu_percent, cpu_temp, mem, disk, disk_free_gb, net_interface, net_u, net_d, swap, ip_local_address, hostname, solar_power
     
-    # Draw baseline elements
-    draw_baseline_layout(draw, Font1, Font2, Font3, Font4)
+    # Draw baseline elements without IP
+    draw_baseline_layout(draw, Font1, Font2, Font3, Font4, draw_ip=False)
     
-    # Draw Solar Power
-    draw.text((120, 185), 'Solar Power', fill=C_T2, font=Font2, anchor="mm")
-    draw.text((120, 220), f'{solar_power}', fill=C_T1, font=Font1, anchor="mm")
+    # Draw IP address where Web3Pi was (approx (162, 175))
+    draw.text((162, 175), f'{ip_local_address}', fill=C_T1, font=Font4, anchor="lm")
+    
+    # Draw Solar Power in the bottom area
+    draw.text((120, 205), 'Solar Power', fill=C_T2, font=Font2, anchor="mm")
+    draw.text((120, 240), f'{solar_power}', fill=C_T1, font=Font1, anchor="mm")
 
 def main():
     logging.info('Raspberry Pi Hardware Monitor Start')
