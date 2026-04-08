@@ -3,5 +3,5 @@ lgpio
 pillow
 numpy
 spidev
-gpiozero
+git+https://github.com/gplasky/gpiozero.git@fix/gh-1162
 netifaces
