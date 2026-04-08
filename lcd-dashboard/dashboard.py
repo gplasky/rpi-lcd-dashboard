@@ -63,7 +63,7 @@ solar_power = "N/A"
 
 def draw_baseline_layout(draw, Font1, Font2, Font3, Font4, draw_ip=True):
     global cpu_percent, cpu_temp, mem, disk, disk_free_gb, net_interface, net_u, net_d, swap, ip_local_address
-    
+
     # Draw vertical lines
     draw.line([(240 / 3, 0), (240 / 3, (280 / 3) * 2)], fill="BLACK", width=2, joint=None)
     draw.line([((240 / 3) * 2, 0), ((240 / 3) * 2, (280 / 3) * 2  -22)], fill="BLACK", width=2, joint=None)
@@ -134,13 +134,13 @@ def draw_baseline_layout(draw, Font1, Font2, Font3, Font4, draw_ip=True):
 
 def draw_custom_layout(draw, Font1, Font2, Font3, Font4):
     global cpu_percent, cpu_temp, mem, disk, disk_free_gb, net_interface, net_u, net_d, swap, ip_local_address, hostname, solar_power
-    
+
     # Draw baseline elements without IP
     draw_baseline_layout(draw, Font1, Font2, Font3, Font4, draw_ip=False)
-    
+
     # Draw IP address shifted to the left to avoid clipping
-    draw.text((90, 175), f'{ip_local_address}', fill=C_T1, font=Font3, anchor="lm")
-    
+    draw.text((90, 175), f'{ip_local_address}', fill=C_T1, font=Font5, anchor="lm")
+
     # Draw Solar Power in the bottom area
     draw.text((120, 205), 'Solar Power', fill=C_T2, font=Font2, anchor="mm")
     draw.text((120, 240), f'{solar_power}', fill=C_T1, font=Font1, anchor="mm")
@@ -175,6 +175,7 @@ def main():
     Font2 = ImageFont.truetype("./font/JetBrainsMono-Medium.ttf", 25)
     Font3 = ImageFont.truetype("./font/JetBrainsMono-Medium.ttf", 20)
     Font4 = ImageFont.truetype("./font/JetBrainsMono-Medium.ttf", 15)
+    Font5 = ImageFont.truetype("./font/JetBrainsMono-Medium.ttf", 18)
 
     # Create start image for drawing.
     image1 = Image.open('./img/splashScreen.png')
@@ -187,7 +188,7 @@ def main():
     time.sleep(splash_time - 1) # how long to show splash image (Web3Pi logo)
 
     get_ip_address()
-    
+
     layout = os.environ.get('LAYOUT', 'baseline')
 
     # Create the ul/dl thread and a deque of length 1 to hold the ul/dl- values
@@ -367,7 +368,7 @@ def medium_frequency_tasks():
     # global cpu_rpm
     mem = psutil.virtual_memory()
     swap = psutil.swap_memory()
-    
+
     fetch_solar_data()
 
     print_stats()
