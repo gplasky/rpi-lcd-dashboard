@@ -42,7 +42,7 @@ RUN wget https://github.com/Gadgetoid/PY_LGPIO/releases/download/0.2.2.0/lgpio-0
     CFLAGS="-Wno-error=incompatible-pointer-types -std=gnu89" pip3 install --no-cache-dir --break-system-packages lgpio-0.2.2.0.tar.gz
 
 # Force gpiozero to bypass its Pi 5 bug and ALWAYS open chip 0 for HAOS
-RUN sed -i 's/lgpio.gpiochip_open(chip)/lgpio.gpiochip_open(0)/g' /usr/lib/python3.12/site-packages/gpiozero/pins/lgpio.py
+# RUN sed -i 's/lgpio.gpiochip_open(chip)/lgpio.gpiochip_open(0)/g' /usr/lib/python3.12/site-packages/gpiozero/pins/lgpio.py
 
 # 5. Install the shim LAST. It will see lgpio is already installed and skip building it!
 RUN pip3 install --no-cache-dir --break-system-packages rpi-lgpio
