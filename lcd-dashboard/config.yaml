@@ -1,6 +1,6 @@
 name: "RPi LCD Dashboard"
 description: "Drives the 1.69 inch SPI LCD dashboard."
-version: "1.4.3"
+version: "1.4.5"
 slug: "rpi_lcd_dashboard"
 arch:
   - aarch64

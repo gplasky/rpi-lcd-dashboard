@@ -132,7 +132,7 @@ def draw_baseline_layout(draw, Font1, Font2, Font3, Font4, draw_ip=True):
     if draw_ip:
         draw.text((120, 260), f'{ip_local_address}', fill=C_T1, font=Font3, anchor="mm")
 
-def draw_custom_layout(draw, Font1, Font2, Font3, Font4):
+def draw_custom_layout(draw, Font1, Font2, Font3, Font4, Font5):
     global cpu_percent, cpu_temp, mem, disk, disk_free_gb, net_interface, net_u, net_d, swap, ip_local_address, hostname, solar_power
 
     # Draw baseline elements without IP
@@ -226,7 +226,7 @@ def main():
                 draw = ImageDraw.Draw(image1)
 
                 if layout == 'custom':
-                    draw_custom_layout(draw, Font1, Font2, Font3, Font4)
+                    draw_custom_layout(draw, Font1, Font2, Font3, Font4, Font5)
                 else:
                     draw_baseline_layout(draw, Font1, Font2, Font3, Font4)
 
