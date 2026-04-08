@@ -21,7 +21,8 @@ export PIN_BL=$(bashio::config 'pin_bl')
 
 bashio::log.info "========================================="
 bashio::log.info "STARTING RPI LCD DASHBOARD"
-bashio::log.info "Configured for: ${BOARD_MODEL} (Revision: ${RPI_LGPIO_REVISION})"bashio::log.info "SPI_BUS: ${SPI_BUS}"
+bashio::log.info "Configured for: ${BOARD_MODEL} (Revision: ${RPI_LGPIO_REVISION})"
+bashio::log.info "SPI_BUS: ${SPI_BUS}"
 bashio::log.info "SPI_DEVICE: ${SPI_DEVICE}"
 bashio::log.info "SPI_SPEED: ${SPI_SPEED}"
 bashio::log.info "LGPIO_CHIP: ${LGPIO_CHIP}"
