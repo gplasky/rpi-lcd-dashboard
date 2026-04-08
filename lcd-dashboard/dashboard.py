@@ -138,8 +138,8 @@ def draw_custom_layout(draw, Font1, Font2, Font3, Font4):
     # Draw baseline elements without IP
     draw_baseline_layout(draw, Font1, Font2, Font3, Font4, draw_ip=False)
     
-    # Draw IP address where Web3Pi was (approx (162, 175))
-    draw.text((162, 175), f'{ip_local_address}', fill=C_T1, font=Font4, anchor="lm")
+    # Draw IP address shifted to the left to avoid clipping
+    draw.text((90, 175), f'{ip_local_address}', fill=C_T1, font=Font3, anchor="lm")
     
     # Draw Solar Power in the bottom area
     draw.text((120, 205), 'Solar Power', fill=C_T2, font=Font2, anchor="mm")
